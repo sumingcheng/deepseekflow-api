@@ -1,0 +1,24 @@
+#!/bin/bash
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+echo "Script directory: $SCRIPT_DIR"
+
+export PYTHONUNBUFFERED=1
+export PYTHONPATH="$SCRIPT_DIR:$PYTHONPATH"
+
+export UPSTREAM_API_URL=${UPSTREAM_API_URL:-"http://127.0.0.1:8000/v1/chat/completions"}
+export TIMEOUT_SECONDS=${TIMEOUT_SECONDS:-120}
+export PORT=${PORT:-8080}
+
+if ! command -v python &> /dev/null; then
+    echo "Error: Python is not installed"
+    exit 1
+fi
+
+echo "Starting application with config:"
+echo "Upstream API URL: $UPSTREAM_API_URL"
+echo "Timeout: $TIMEOUT_SECONDS seconds"
+echo "Port: $PORT"
+echo "Python path: $PYTHONPATH"
+
+exec python "$SCRIPT_DIR/main.py" 

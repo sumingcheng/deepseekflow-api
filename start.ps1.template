@@ -1,0 +1,33 @@
+# Get script directory
+$SCRIPT_DIR = Split-Path -Parent $MyInvocation.MyCommand.Path
+Write-Host "Script directory: $SCRIPT_DIR"
+
+# Set Python environment
+$env:PYTHONUNBUFFERED = "1"
+$env:PYTHONPATH = "$SCRIPT_DIR;$env:PYTHONPATH"
+
+# Set application config
+if (-not $env:UPSTREAM_API_URL) {
+    $env:UPSTREAM_API_URL = "http://127.0.0.1:8000/v1/chat/completions"
+}
+if (-not $env:TIMEOUT_SECONDS) {
+    $env:TIMEOUT_SECONDS = "120"
+}
+if (-not $env:PORT) {
+    $env:PORT = "8080"
+}
+
+# Check if Python is installed
+if (-not (Get-Command python -ErrorAction SilentlyContinue)) {
+    Write-Host "Error: Python is not installed"
+    exit 1
+}
+
+Write-Host "Starting application with config:"
+Write-Host "Upstream API URL: $env:UPSTREAM_API_URL"
+Write-Host "Timeout: $env:TIMEOUT_SECONDS seconds"
+Write-Host "Port: $env:PORT"
+Write-Host "Python path: $env:PYTHONPATH"
+
+# Start application
+python "$SCRIPT_DIR\main.py" 

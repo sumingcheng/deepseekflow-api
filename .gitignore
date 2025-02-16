@@ -136,6 +136,10 @@ ENV/
 env.bak/
 venv.bak/
 
+# Start scripts
+start.sh
+start.ps1
+
 # Spyder project settings
 .spyderproject
 .spyproject
