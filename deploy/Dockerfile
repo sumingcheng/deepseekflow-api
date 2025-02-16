@@ -17,7 +17,8 @@ RUN pip config set global.index-url https://mirrors.aliyun.com/pypi/simple/ \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY config.py main.py ./
+# 复制所有源代码文件
+COPY *.py ./
 
 EXPOSE ${PORT:-8080}
 
