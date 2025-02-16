@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 async def process_stream_response(response: httpx.Response):
     """处理上游API的流式响应并转换为OpenAI格式"""
     try:
-        is_thinking = True  # 添加一个标志来跟踪是否在思考阶段
+        is_thinking = True
         async for line in response.aiter_lines():
             if not line.strip():
                 continue
@@ -39,32 +39,29 @@ async def process_stream_response(response: httpx.Response):
                 continue
 
             try:
-                # 解析上游响应
                 json_data = json.loads(line.replace("data: ", ""))
                 
-                # 从上游响应中获取 delta 内容
                 delta_content = None
                 if "choices" in json_data and json_data["choices"]:
                     choice = json_data["choices"][0]
                     if "delta" in choice and "content" in choice["delta"]:
                         delta_content = choice["delta"]["content"]
 
-                # 构造 delta 消息
-                
+                # 跳过 <think> 标记，直接进入下一次循环
+                if delta_content == "<think>":
+                    continue
+                        
                 delta = DeltaMessage(content=None, reasoning_content=None)
                 
-                # 检查是否是 </think> 标记
                 if delta_content == "</think>":
-                    is_thinking = False  # 切换到输出阶段
-                    continue  # 跳过 </think> 标记的输出
+                    is_thinking = False
+                    continue
                 
-                # 根据当前阶段决定内容放在哪个字段
                 if is_thinking:
                     delta.reasoning_content = delta_content
                 else:
                     delta.content = delta_content
                 
-                # 构造响应
                 choice = ChatCompletionResponseChoice(
                     index=0,
                     delta=delta,
@@ -80,14 +77,15 @@ async def process_stream_response(response: httpx.Response):
                     "choices": [choice.model_dump(exclude_none=False)]
                 }
 
+                # 实时转发每个响应块
                 yield f"data: {json.dumps(response_data)}\n\n"
+                await asyncio.sleep(0)  # 让出控制权，确保数据能够及时发送
 
             except json.JSONDecodeError as e:
                 logger.error(f"JSON decode error: {str(e)}, line: {line}")
                 continue
             except Exception as e:
-                logger.error(
-                    f"Error processing stream: {str(e)}", exc_info=True)
+                logger.error(f"Error processing stream: {str(e)}", exc_info=True)
                 continue
     except Exception as e:
         logger.error(f"Stream processing error: {str(e)}", exc_info=True)
@@ -129,7 +127,11 @@ async def chat_completions(request: ChatCompletionRequest):
                         )
                     return StreamingResponse(
                         process_stream_response(response),
-                        media_type="text/event-stream"
+                        media_type="text/event-stream",
+                        headers={
+                            "Cache-Control": "no-cache",
+                            "Connection": "keep-alive",
+                        }
                     )
 
                 # 处理非流式响应
