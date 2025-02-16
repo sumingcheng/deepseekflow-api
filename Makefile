@@ -9,7 +9,7 @@ build:
 	@docker build -t $(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG) -f $(DOCKERFILE_PATH) .
 
 up:
-	@docker compose -f $(DOCKER_COMPOSE_FILE) up -d
+	@cd deploy && docker compose up -d
 
 down:
-	@docker compose -f $(DOCKER_COMPOSE_FILE) down
+	@cd deploy && docker compose down
