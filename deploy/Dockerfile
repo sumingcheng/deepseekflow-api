@@ -6,8 +6,9 @@ ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1
 
 # 配置apt使用阿里云源
-RUN sed -i 's/deb.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list \
-    && sed -i 's/security.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list
+RUN echo "deb https://mirrors.aliyun.com/debian/ bullseye main contrib non-free" > /etc/apt/sources.list && \
+    echo "deb https://mirrors.aliyun.com/debian/ bullseye-updates main contrib non-free" >> /etc/apt/sources.list && \
+    echo "deb https://mirrors.aliyun.com/debian-security bullseye-security main contrib non-free" >> /etc/apt/sources.list
 
 # 配置pip使用阿里云源
 RUN pip config set global.index-url https://mirrors.aliyun.com/pypi/simple/ \
