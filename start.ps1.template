@@ -5,17 +5,22 @@ Write-Host "Script directory: $SCRIPT_DIR"
 # Set Python environment
 $env:PYTHONUNBUFFERED = "1"
 $env:PYTHONPATH = "$SCRIPT_DIR;$env:PYTHONPATH"
+$env:PORT = "45677"
 
 # Set application config
-if (-not $env:UPSTREAM_API_URL) {
-    $env:UPSTREAM_API_URL = "http://127.0.0.1:8000/v1/chat/completions"
-}
+$env:UPSTREAM_API_URL = "http://127.0.0.1:30000/v1/chat/completions"
+Write-Host "Setting UPSTREAM_API_URL to: $env:UPSTREAM_API_URL"
+
 if (-not $env:TIMEOUT_SECONDS) {
     $env:TIMEOUT_SECONDS = "120"
 }
-if (-not $env:PORT) {
-    $env:PORT = "8080"
-}
+
+# 在启动前验证环境变量
+Write-Host "`nVerifying environment variables:"
+Write-Host "UPSTREAM_API_URL = $env:UPSTREAM_API_URL"
+Write-Host "TIMEOUT_SECONDS = $env:TIMEOUT_SECONDS"
+Write-Host "PORT = $env:PORT"
+Write-Host ""
 
 # Check if Python is installed
 if (-not (Get-Command python -ErrorAction SilentlyContinue)) {
@@ -26,7 +31,6 @@ if (-not (Get-Command python -ErrorAction SilentlyContinue)) {
 Write-Host "Starting application with config:"
 Write-Host "Upstream API URL: $env:UPSTREAM_API_URL"
 Write-Host "Timeout: $env:TIMEOUT_SECONDS seconds"
-Write-Host "Port: $env:PORT"
 Write-Host "Python path: $env:PYTHONPATH"
 
 # Start application
