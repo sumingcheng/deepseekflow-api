@@ -8,8 +8,8 @@ DOCKER_COMPOSE_FILE := deploy/docker-compose.yaml
 build:
 	@docker build -t $(DOCKER_IMAGE_NAME):$(DOCKER_IMAGE_TAG) -f $(DOCKERFILE_PATH) .
 
-start:
+up:
 	@docker compose -f $(DOCKER_COMPOSE_FILE) up -d
 
-stop:
+down:
 	@docker compose -f $(DOCKER_COMPOSE_FILE) down
