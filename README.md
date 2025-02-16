@@ -44,7 +44,8 @@ make up
 
 测试应用为FastGPT
 
-![image-20250216161349170](D:\Desktop\deepseekflow-api\assets\image-20250216161349170.png)
+![image-20250216161349170](https://github.com/user-attachments/assets/da90737c-b542-4140-8f60-76ca36825ce1)
+
 
 ## 总体流程
 
