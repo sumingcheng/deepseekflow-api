@@ -4,6 +4,7 @@ services:
   ds-api:
     image: ds-api:v1.0.1
     container_name: ds-api
+    network_mode: "host"
     ports:
       - '45677:45677'
     environment:
