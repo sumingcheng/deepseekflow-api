@@ -31,14 +31,14 @@ Copy-Item start.ps1.template start.ps1
 .\start.ps1
 ```
 
-### 配置项
-
-- UPSTREAM_API_URL: 上游 API 地址，默认 http://127.0.0.1:8000/v1/chat/completions
-- TIMEOUT_SECONDS: 请求超时时间，默认 120s
-
 ## 部署
 
+拉取基础镜像后打包
 
+```
+make build
+make up
+```
 
 ## 总体流程
 
