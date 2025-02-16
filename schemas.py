@@ -1,5 +1,5 @@
-from typing import Dict, List, Optional, Union
-from pydantic import BaseModel
+from typing import Dict, List, Optional, Union, Any
+from pydantic import BaseModel, Field
 
 
 class ChatMessage(BaseModel):
@@ -8,14 +8,34 @@ class ChatMessage(BaseModel):
     name: Optional[str] = None
 
 
+class DeltaMessage(BaseModel):
+    content: Optional[str] = None
+    reasoning_content: Optional[str] = None
+    role: Optional[str] = None
+
+
+class ChatCompletionResponseChoice(BaseModel):
+    index: int
+    delta: Optional[DeltaMessage] = None
+    message: Optional[ChatMessage] = None
+    finish_reason: Optional[str] = None
+
+
+class UsageInfo(BaseModel):
+    completion_tokens: Optional[int] = None
+    prompt_tokens: Optional[int] = None
+    total_tokens: Optional[int] = None
+    prompt_tokens_details: Optional[Dict[str, Any]] = None
+
+
 class ChatCompletionRequest(BaseModel):
     model: str
     messages: List[ChatMessage]
-    temperature: Optional[float] = 1.0
+    temperature: Optional[float] = 0.7
     top_p: Optional[float] = 1.0
     n: Optional[int] = 1
     stream: Optional[bool] = False
-    stop: Optional[Union[str, List[str]]] = None
+    stop: Optional[List[str]] = None
     max_tokens: Optional[int] = None
     presence_penalty: Optional[float] = 0
     frequency_penalty: Optional[float] = 0
@@ -23,24 +43,11 @@ class ChatCompletionRequest(BaseModel):
     user: Optional[str] = None
 
 
-class DeltaMessage(BaseModel):
-    content: Optional[str] = None
-    reasoning_content: Optional[str] = None
-
-
-class ChatCompletionResponseChoice(BaseModel):
-    index: int
-    message: Optional[ChatMessage] = None
-    delta: Optional[DeltaMessage] = None
-    logprobs: Optional[dict] = None
-    finish_reason: Optional[str] = None
-
-
 class ChatCompletionResponse(BaseModel):
     id: str
     object: str = "chat.completion"
     created: int
     model: str
-    system_fingerprint: Optional[str] = None
     choices: List[ChatCompletionResponseChoice]
-    usage: Optional[Dict[str, int]] = None
+    usage: Optional[UsageInfo] = None
+    system_fingerprint: Optional[str] = None

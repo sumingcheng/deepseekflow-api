@@ -51,3 +51,9 @@ make up
 4. 处理特殊标记（`<think>`/`</think>`），区分普通内容和推理内容。
 
 5. 将处理后的数据转换为 SSE 格式，实时推送给客户端，同时确保异常情况下的错误处理。
+
+## 效果
+
+测试应用为FastGPT
+
+![image-20250216161349170](D:\Desktop\deepseekflow-api\assets\image-20250216161349170.png)
