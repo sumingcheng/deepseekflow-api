@@ -24,7 +24,6 @@ class ChatCompletionRequest(BaseModel):
 
 
 class DeltaMessage(BaseModel):
-    role: Optional[str] = None
     content: Optional[str] = None
     reasoning_content: Optional[str] = None
 

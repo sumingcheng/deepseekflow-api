@@ -26,10 +26,11 @@ logger = logging.getLogger(__name__)
 async def process_stream_response(response: httpx.Response):
     """处理上游API的流式响应并转换为OpenAI格式"""
     try:
+        is_thinking = True  # 添加一个标志来跟踪是否在思考阶段
         async for line in response.aiter_lines():
             if not line.strip():
                 continue
-                
+
             if line == "data: [DONE]":
                 yield "data: [DONE]\n\n"
                 break
@@ -40,21 +41,43 @@ async def process_stream_response(response: httpx.Response):
             try:
                 # 解析上游响应
                 json_data = json.loads(line.replace("data: ", ""))
-                content = json_data.get("content", "")
+                
+                # 从上游响应中获取 delta 内容
+                delta_content = None
+                if "choices" in json_data and json_data["choices"]:
+                    choice = json_data["choices"][0]
+                    if "delta" in choice and "content" in choice["delta"]:
+                        delta_content = choice["delta"]["content"]
+
+                # 构造 delta 消息
+                
+                delta = DeltaMessage(content=None, reasoning_content=None)
+                
+                # 检查是否是 </think> 标记
+                if delta_content == "</think>":
+                    is_thinking = False  # 切换到输出阶段
+                    continue  # 跳过 </think> 标记的输出
+                
+                # 根据当前阶段决定内容放在哪个字段
+                if is_thinking:
+                    delta.reasoning_content = delta_content
+                else:
+                    delta.content = delta_content
                 
                 # 构造响应
                 choice = ChatCompletionResponseChoice(
                     index=0,
-                    delta=DeltaMessage(content=content),
+                    delta=delta,
                     finish_reason=None
                 )
 
                 response_data = {
-                    "id": "chatcmpl-" + json_data.get("id", ""),
+                    "id": json_data.get("id", ""),
                     "object": "chat.completion.chunk",
                     "created": int(json_data.get("created", 0)),
-                    "model": json_data.get("model", ""),
-                    "choices": [choice.model_dump(exclude_none=True)]
+                    "model": "deepseek-reasoner",
+                    "system_fingerprint": "fp_7e73fd9a08",
+                    "choices": [choice.model_dump(exclude_none=False)]
                 }
 
                 yield f"data: {json.dumps(response_data)}\n\n"
@@ -63,7 +86,8 @@ async def process_stream_response(response: httpx.Response):
                 logger.error(f"JSON decode error: {str(e)}, line: {line}")
                 continue
             except Exception as e:
-                logger.error(f"Error processing stream: {str(e)}", exc_info=True)
+                logger.error(
+                    f"Error processing stream: {str(e)}", exc_info=True)
                 continue
     except Exception as e:
         logger.error(f"Stream processing error: {str(e)}", exc_info=True)
@@ -86,7 +110,8 @@ async def chat_completions(request: ChatCompletionRequest):
                     timeout=Config.TIMEOUT_SECONDS,
                     headers={"Content-Type": "application/json"}
                 )
-                logger.info(f"Upstream API response status: {response.status_code}")
+                logger.info(
+                    f"Upstream API response status: {response.status_code}")
 
                 # 处理流式响应
                 if request.stream:
