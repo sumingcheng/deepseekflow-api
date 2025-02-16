@@ -8,5 +8,6 @@ services:
       - '8080:8080'
     environment:
       - UPSTREAM_API_URL=http://127.0.0.1:8000/v1/chat/completions
-      - TIMEOUT_SECONDS=60  # 上游API请求超时时间（秒）
+      - TIMEOUT_SECONDS=60 # 上游API请求超时时间（秒）
+      - PORT=45677 # 服务端口
     restart: unless-stopped
