@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  ds-api:
+    image: ds-api:v1.0.1
+    container_name: ds-api
+    ports:
+      - '8080:8080'
+    environment:
+      - UPSTREAM_API_URL=http://127.0.0.1:8000/v1/chat/completions
+      - TIMEOUT_SECONDS=60  # 上游API请求超时时间（秒）
+    restart: unless-stopped
