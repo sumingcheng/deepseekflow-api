@@ -3,8 +3,8 @@ from pydantic import BaseModel, Field
 
 
 class ChatMessage(BaseModel):
-    role: str
-    content: str
+    role: Optional[str] = None
+    content: Optional[str] = None
     name: Optional[str] = None
 
 
@@ -15,7 +15,7 @@ class DeltaMessage(BaseModel):
 
 
 class ChatCompletionResponseChoice(BaseModel):
-    index: int
+    index: Optional[int] = 0
     delta: Optional[DeltaMessage] = None
     message: Optional[ChatMessage] = None
     finish_reason: Optional[str] = None
@@ -29,8 +29,8 @@ class UsageInfo(BaseModel):
 
 
 class ChatCompletionRequest(BaseModel):
-    model: str
-    messages: List[ChatMessage]
+    model: Optional[str] = None
+    messages: Optional[List[ChatMessage]] = []
     temperature: Optional[float] = 0.7
     top_p: Optional[float] = 1.0
     n: Optional[int] = 1
@@ -44,10 +44,10 @@ class ChatCompletionRequest(BaseModel):
 
 
 class ChatCompletionResponse(BaseModel):
-    id: str
-    object: str = "chat.completion"
-    created: int
-    model: str
-    choices: List[ChatCompletionResponseChoice]
+    id: Optional[str] = None
+    object: Optional[str] = "chat.completion"
+    created: Optional[int] = 0
+    model: Optional[str] = None
+    choices: Optional[List[ChatCompletionResponseChoice]] = []
     usage: Optional[UsageInfo] = None
     system_fingerprint: Optional[str] = None
